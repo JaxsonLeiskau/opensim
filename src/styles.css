@@ -1,0 +1,46 @@
+:root { --bg: #1b1d22; --panel: #23262d; --line: #353a44; --fg: #d8dde6; --dim: #8a93a3; --acc: #4fc3f7; --sel: #ffb74d; }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg); font: 13px system-ui, sans-serif; overflow: hidden; }
+body { display: grid; grid-template-rows: auto 1fr 260px; }
+button, select, input, textarea { font: inherit; color: var(--fg); background: #2c3039; border: 1px solid var(--line); border-radius: 4px; padding: 4px 8px; }
+button { cursor: pointer; } button:hover { border-color: var(--acc); }
+button.on { background: var(--acc); color: #000; border-color: var(--acc); }
+#toolbar { display: flex; gap: 4px; align-items: center; padding: 6px 8px; background: var(--panel); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.brand { color: var(--acc); margin-right: 8px; } .sep { width: 10px; } .run { background: #2e7d32; border-color: #2e7d32; }
+#views { margin-left: auto; display: flex; gap: 2px; }
+#main { display: grid; grid-template-columns: 170px 1fr 300px; min-height: 0; }
+#palette { overflow: auto; background: var(--panel); border-right: 1px solid var(--line); padding: 6px; }
+#palette h4 { margin: 10px 0 4px; color: var(--dim); font-size: 11px; text-transform: uppercase; }
+#palette button { display: block; width: 100%; text-align: left; margin: 2px 0; padding: 3px 6px; }
+#palette button.on { background: var(--acc); color: #000; }
+#center { position: relative; min-width: 0; min-height: 0; }
+#schematic { width: 100%; height: 100%; display: block; background: #15171b; user-select: none; }
+#breadboard { position: absolute; inset: 0; overflow: auto; padding: 12px; display: grid; grid-template-columns: minmax(700px, 1fr) 280px; gap: 12px; background: #15171b; }
+#breadboard[hidden] { display: none; }
+#breadboard .bb { width: 100%; height: auto; }
+#breadboard ul { padding-left: 18px; margin: 4px 0; } #breadboard li { margin: 3px 0; }
+#breadboard table td:first-child { text-align: right; padding-right: 8px; color: var(--acc); }
+#side { background: var(--panel); border-left: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
+.tabs { display: flex; gap: 2px; padding: 6px; border-bottom: 1px solid var(--line); }
+#side [data-pane] { padding: 10px; overflow: auto; flex: 1; }
+#side label { display: block; margin: 8px 0 2px; color: var(--dim); font-size: 12px; }
+#side input, #side select, #side textarea { width: 100%; }
+.row { display: flex; gap: 6px; margin: 8px 0; } .hint { color: var(--dim); margin: 0 0 8px; }
+#cl-imgs img { max-width: 80px; max-height: 60px; margin: 4px 4px 0 0; border: 1px solid var(--line); cursor: pointer; }
+#cl-out { white-space: pre-wrap; line-height: 1.4; }
+#results { background: var(--panel); border-top: 1px solid var(--line); display: grid; grid-template-rows: auto 1fr; min-height: 0; }
+.rhead { display: flex; gap: 12px; align-items: center; padding: 4px 8px; border-bottom: 1px solid var(--line); min-height: 28px; flex-wrap: wrap; }
+#status.err { color: #ef5350; white-space: pre-wrap; } #readout { margin-left: auto; color: var(--dim); font-family: monospace; }
+#legend span { cursor: pointer; margin-right: 10px; } #legend span.off { opacity: .35; text-decoration: line-through; }
+.rbody { display: flex; min-height: 0; } #plot { flex: 1; min-width: 0; height: 100%; } #plot.empty { display: none; }
+#table { overflow: auto; font-family: monospace; font-size: 12px; } #table:not(:empty) { padding: 4px 10px; min-width: 260px; }
+#table td { padding: 1px 8px; border-bottom: 1px solid #2c3039; } #table tr:first-child td { color: var(--dim); }
+/* schematic */
+.dot { fill: #3a3f4a; }
+.part path, .part circle, .part rect { stroke: var(--fg); stroke-width: 2; fill: none; }
+.part .fill { fill: var(--fg); stroke: none; } .part .t { fill: var(--fg); stroke: none; font-family: system-ui; }
+.part.sel path, .part.sel circle, .part.sel rect { stroke: var(--sel); } .part.sel .fill, .part.sel .t { fill: var(--sel); }
+.part.ghost { opacity: .5; }
+.lbl { fill: var(--dim); font-size: 11px; pointer-events: none; } .annot { fill: #81c784; font-weight: 600; }
+.wire { stroke: #7cb342; stroke-width: 2; fill: none; } .wire.sel { stroke: var(--sel); stroke-width: 3; } .wire.ghost { stroke-dasharray: 4 3; }
+.junc { fill: #7cb342; } .cursor { fill: none; stroke: var(--acc); }

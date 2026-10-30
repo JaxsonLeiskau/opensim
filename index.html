@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenSim</title>
+  <link rel="stylesheet" href="/src/styles.css" />
+</head>
+<body>
+  <header id="toolbar">
+    <b class="brand">OpenSim</b>
+    <button data-act="new" title="New circuit">New</button>
+    <button data-act="open" title="Open (Ctrl+O)">Open</button>
+    <button data-act="save" title="Save (Ctrl+S)">Save</button>
+    <button data-act="netlist" title="Export SPICE netlist">Netlist</button>
+    <span class="sep"></span>
+    <button data-act="undo" title="Undo (Ctrl+Z)">↶</button>
+    <button data-act="redo" title="Redo (Ctrl+Y)">↷</button>
+    <button data-act="wire" title="Wire tool (W)">Wire</button>
+    <button data-act="rotate" title="Rotate (R)">Rotate</button>
+    <button data-act="del" title="Delete (Del)">Delete</button>
+    <span class="sep"></span>
+    <select id="kind" title="Analysis">
+      <option value="op">DC Operating Point</option>
+      <option value="tran">Transient</option>
+      <option value="ac">AC Sweep</option>
+      <option value="dc">DC Sweep</option>
+      <option value="fourier">Fourier</option>
+      <option value="noise">Noise</option>
+      <option value="sweep">Parameter Sweep</option>
+    </select>
+    <button data-act="run" class="run" title="Run (F5)">▶ Run</button>
+    <button data-act="stop" title="Stop">■</button>
+    <span class="sep"></span>
+    <nav id="views"><button data-view="schematic" class="on">Schematic</button><button data-view="breadboard">Breadboard</button></nav>
+  </header>
+  <div id="main">
+    <aside id="palette"></aside>
+    <section id="center">
+      <svg id="schematic"></svg>
+      <div id="breadboard" hidden></div>
+    </section>
+    <aside id="side">
+      <nav class="tabs"><button data-tab="props" class="on">Properties</button><button data-tab="analysis">Analysis</button><button data-tab="claude">Claude</button></nav>
+      <div data-pane="props"></div>
+      <div data-pane="analysis" hidden></div>
+      <div data-pane="claude" hidden>
+        <p class="hint">Paste a screenshot (Ctrl+V), a netlist, or describe a circuit. Uses your local Claude Code login.</p>
+        <textarea id="cl-text" rows="6" placeholder="e.g. 555 astable blinking an LED at 2 Hz on 9 V"></textarea>
+        <div id="cl-imgs"></div>
+        <div class="row"><button id="cl-build">Build circuit</button><button id="cl-ask">Ask about my circuit</button></div>
+        <div id="cl-out"></div>
+      </div>
+    </aside>
+  </div>
+  <footer id="results">
+    <div class="rhead"><span id="status">Ready</span><span id="legend"></span><span id="readout"></span></div>
+    <div class="rbody"><canvas id="plot"></canvas><div id="table"></div></div>
+  </footer>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
