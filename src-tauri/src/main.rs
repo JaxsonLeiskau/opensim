@@ -9,9 +9,9 @@ use std::os::windows::process::CommandExt;
 // GUI apps may not see the user's PATH additions, so check the default Claude Code install location first.
 fn claude_exe() -> String {
     if let Ok(home) = std::env::var("USERPROFILE") {
-        let p = format!("{home}\.local\bin\claude.exe");
-        if std::path::Path::new(&p).exists() {
-            return p;
+        let p = std::path::Path::new(&home).join(".local").join("bin").join("claude.exe");
+        if p.exists() {
+            return p.to_string_lossy().into_owned();
         }
     }
     "claude".into()
