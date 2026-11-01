@@ -1,6 +1,6 @@
 import { DEFS, fmt, type Circuit, type Props } from './parts.ts';
 import { nets, toSpice } from './netlist.ts';
-import { createEditor, type Sel } from './editor.ts';
+import { createEditor } from './editor.ts';
 import { analyze, lineFor, stop, type Out } from './sim.ts';
 import { plot, readout, COLORS } from './plot.ts';
 import { layout } from './breadboard.ts';
@@ -13,16 +13,23 @@ const status = (s: string, err = false) => { $('#status').textContent = s; $('#s
 const ed = createEditor($<any>('#schematic'), showProps);
 
 // ---------- palette ----------
+// single-key shortcuts for the common parts (Space / Ctrl+R rotate, W wire)
+const HOT: Record<string, string> = { r: 'R', c: 'C', l: 'L', v: 'VDC', i: 'IDC', a: 'VAC', g: 'GND', d: 'D', e: 'LED', q: 'NPN', o: 'OPAMP', s: 'SWITCH', n: 'LABEL', p: 'VPROBE' };
+const keyOf = Object.fromEntries(Object.entries(HOT).map(([k, t]) => [t, k.toUpperCase()]));
 const cats = [...new Set(Object.values(DEFS).map(d => d.cat))];
 $('#palette').innerHTML = cats.map(cat => `<h4>${cat}</h4>` + Object.entries(DEFS).filter(([, d]) => d.cat === cat)
-  .map(([t, d]) => `<button data-part="${t}">${d.label}</button>`).join('')).join('');
-$('#palette').onclick = e => { const t = (e.target as HTMLElement).dataset.part; if (t) ed.place(t); };
+  .map(([t, d]) => `<button data-part="${t}">${d.label}${keyOf[t] ? `<kbd>${keyOf[t]}</kbd>` : ''}</button>`).join('')).join('');
+$('#palette').onclick = e => { const t = (e.target as HTMLElement).closest<HTMLElement>('[data-part]')?.dataset.part; if (t) ed.place(t); };
 
 // ---------- properties ----------
-function showProps(s: Sel) {
+function showProps(ids: string[]) {
   const pane = $('[data-pane="props"]');
-  const p = s?.kind === 'part' && ed.circuit.parts.find(p => p.id === s.id);
-  if (!p) { pane.innerHTML = `<p class="hint">${s ? 'Wire selected. Press Delete to remove it.' : 'Click a part from the left, then click the canvas to place it. Drag from a pin to draw a wire. R rotates, Del deletes, wheel zooms, right-drag pans. Shift+click places repeatedly.'}</p>`; return; }
+  const p = ids.length === 1 && ed.circuit.parts.find(p => p.id === ids[0]);
+  if (!p) {
+    pane.innerHTML = `<p class="hint">${ids.length ? `${ids.length} item${ids.length > 1 ? 's' : ''} selected. Drag to move them, Delete removes them, Space rotates parts.`
+      : 'Click a part on the left (or press its key), then click the canvas to place it. Drag from a pin to draw a wire. Drag on empty space to box-select; Shift/Ctrl+click adds to the selection; Ctrl+A selects all. Space or Ctrl+R rotates, Del deletes, wheel zooms, right-drag pans. Shift+click places repeatedly.'}</p>`;
+    return;
+  }
   const d = DEFS[p.type];
   const field = (k: string, v: string) => d.options?.[k]
     ? `<label>${k}</label><select data-k="${k}">${d.options[k].map(o => `<option${o === v ? ' selected' : ''}>${o}</option>`).join('')}</select>`
@@ -33,7 +40,7 @@ function showProps(s: Sel) {
     if (el.dataset.k === 'name') p.name = el.value.trim() || p.name; else p.props[el.dataset.k!] = el.value;
   }));
 }
-showProps(null);
+showProps([]);
 
 // ---------- analysis settings ----------
 const AN: Record<string, [string, string, string][]> = {
@@ -181,9 +188,9 @@ async function claude(build: boolean) {
   try {
     if (build) {
       const reply = await askClaude(buildPrompt(text), images);
-      ed.loadSpec(parseSpec(reply));
+      const warnings = ed.loadSpec(parseSpec(reply));
       setView('schematic');
-      out.textContent = 'Circuit placed on the board. Parts are joined by net labels; drag them around and add wires if you like. Ctrl+Z undoes.';
+      out.textContent = ['Circuit built. Drag parts to tidy it up; Ctrl+Z undoes.', ...warnings].join('\n\n');
     } else {
       out.textContent = await askClaude(askPrompt(text, toSpice(ed.circuit, '* (analysis set in app)')), images);
     }
@@ -209,9 +216,10 @@ window.addEventListener('keydown', e => {
   const k = e.key.toLowerCase(), ctrl = e.ctrlKey || e.metaKey;
   if (ctrl && k === 'z') acts.undo(); else if (ctrl && k === 'y') acts.redo();
   else if (ctrl && k === 's') acts.save(); else if (ctrl && k === 'o') acts.open();
+  else if (ctrl && k === 'a') ed.selectAll(); else if (ctrl && k === 'r') ed.rotate();
   else if (e.key === 'F5') run();
   else if (ctrl) return;
-  else if (k === 'r') ed.rotate(); else if (k === 'w') ed.wire();
+  else if (k === ' ') ed.rotate(); else if (k === 'w') ed.wire(); else if (HOT[k]) ed.place(HOT[k]);
   else if (k === 'delete' || k === 'backspace') ed.del(); else if (k === 'escape') ed.cancel();
   else return;
   e.preventDefault();

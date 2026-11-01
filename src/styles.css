@@ -44,3 +44,6 @@ button.on { background: var(--acc); color: #000; border-color: var(--acc); }
 .lbl { fill: var(--dim); font-size: 11px; pointer-events: none; } .annot { fill: #81c784; font-weight: 600; }
 .wire { stroke: #7cb342; stroke-width: 2; fill: none; } .wire.sel { stroke: var(--sel); stroke-width: 3; } .wire.ghost { stroke-dasharray: 4 3; }
 .junc { fill: #7cb342; } .cursor { fill: none; stroke: var(--acc); }
+#palette kbd { float: right; color: var(--dim); font: 11px monospace; border: 1px solid var(--line); border-radius: 3px; padding: 0 4px; }
+#palette button.on kbd { color: #000; }
+.marquee { fill: rgba(79, 195, 247, .12); stroke: var(--acc); stroke-dasharray: 4 3; stroke-width: 1; }

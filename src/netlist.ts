@@ -2,6 +2,11 @@ import { DEFS, type Circuit, type Part, type Pt, type Wire } from './parts.ts';
 
 export const rotPt = ([x, y]: Pt, r: number): Pt => { for (let i = 0; i < ((r % 4) + 4) % 4; i++) [x, y] = [-y, x]; return [x, y]; };
 export const pinPos = (p: Part): Pt[] => DEFS[p.type].pins.map(q => { const [x, y] = rotPt(q, p.rot); return [p.x + x, p.y + y]; });
+export function worldBox(p: { x: number; y: number; rot: number; type: string }) {
+  const [x1, y1, x2, y2] = DEFS[p.type].box;
+  const [a, b] = ([[x1, y1], [x2, y2]] as Pt[]).map(q => rotPt(q, p.rot));
+  return { x1: p.x + Math.min(a[0], b[0]), x2: p.x + Math.max(a[0], b[0]), y1: p.y + Math.min(a[1], b[1]), y2: p.y + Math.max(a[1], b[1]) };
+}
 // wires are always drawn as an L: horizontal from a, then vertical to b
 export const corner = (w: Wire): Pt => [w.b[0], w.a[1]];
 const between = (v: number, a: number, b: number) => v >= Math.min(a, b) && v <= Math.max(a, b);

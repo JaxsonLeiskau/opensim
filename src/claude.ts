@@ -1,5 +1,5 @@
 import { DEFS } from './parts.ts';
-import type { Spec } from './editor.ts';
+import type { Spec } from './route.ts';
 
 export const hasTauri = '__TAURI_INTERNALS__' in window;
 
@@ -11,16 +11,25 @@ export async function askClaude(prompt: string, images: string[]): Promise<strin
 }
 
 const catalog = () => Object.entries(DEFS).filter(([t]) => t !== 'GND' && t !== 'LABEL')
-  .map(([t, d]) => `- ${t} (${d.label}): pins [${d.pinNames.join(', ')}]; props ${JSON.stringify(d.props)}${d.options ? '; options ' + JSON.stringify(d.options) : ''}`).join('\n');
+  .map(([t, d]) => `- ${t} (${d.label}): pins ${d.pins.map((q, i) => `${d.pinNames[i] || 'pin'}@(${q[0] / 20},${q[1] / 20})`).join(' ')}; props ${JSON.stringify(d.props)}${d.options ? '; options ' + JSON.stringify(d.options) : ''}`).join('\n');
 
 export const buildPrompt = (req: string) => `You convert circuits into JSON for the OpenSim circuit simulator.
 Available part types:
 ${catalog()}
 
+Pin positions are in grid units relative to the part centre at rotation 0 (x right, y down).
+
 Reply with ONLY a JSON object, no prose, shaped like:
-{"parts":[{"type":"R","name":"R1","props":{"value":"1k"},"nodes":["in","out"]}]}
+{"parts":[{"type":"R","name":"R1","props":{"value":"1k"},"nodes":["in","out"],"x":10,"y":4,"rot":0}]}
 Rules:
 - "nodes" gives the net name for each pin, in the pin order listed above. Use "0" for ground.
+- "x","y" place the part centre on the grid (integers, y grows downward). "rot" is 0-3 quarter turns clockwise
+  (rot 1 turns a horizontal resistor vertical; a pin at (x,y) moves to (-y,x)).
+- Reproduce the layout exactly as drawn in the image: same relative positions, same orientations, same flow
+  (e.g. supply on the left, ground at the bottom). For text-only requests use a clean textbook layout, signal left to right.
+- Keep at least 3 empty grid units between parts. Wires are drawn automatically between pins sharing a net,
+  so line up connected pins horizontally or vertically where the drawing does.
+- Ground pins get a ground symbol automatically; don't add GND parts.
 - Values use SPICE suffixes (k, meg, m, u, n, p). Only use the listed types and props.
 - Include sources and instruments shown in the input. If something has no matching part, pick the closest one.
 - If image files are attached below, read each one with the Read tool first.

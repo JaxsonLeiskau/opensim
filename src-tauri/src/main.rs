@@ -33,7 +33,7 @@ async fn ask_claude(prompt: String, images: Vec<String>) -> Result<String, Strin
             full.push_str(&format!("\nAttached image file: {}", p.display()));
         }
         let mut cmd = Command::new(claude_exe());
-        cmd.args(["-p", "--output-format", "text", "--allowedTools", "Read"])
+        cmd.args(["-p", "--no-session-persistence", "--output-format", "text", "--allowedTools", "Read"])
             .current_dir(&dir)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
